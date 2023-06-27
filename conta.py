@@ -1,4 +1,10 @@
+import datetime
+
 class Conta:
+    def obter_data_atual(self):
+        data_hora_atual = datetime.datetime.now()
+        return data_hora_atual
+
     def __init__(self, numero, titular, saldo, limite):
         self.__numero = numero
         self.__titular = titular
@@ -6,24 +12,52 @@ class Conta:
         self.__limite = limite
 
     def extrato(self):
-        print("saldo {} do titular {}".format(self.__saldo, self.__titular))
+        print("Extrato da Conta")
+        print("Saldo:", round(self.__saldo, 2))
+        self.imprime_data_e_hora()
 
-    def deposita(self, valor):
+
+    def depositar(self, valor):
         self.__saldo += valor
+        print("Valor depositado:", valor)
+        self.imprime_data_e_hora()
 
-    def __saque_disponivel(self, saque):
-     limite_para_saque = self.__saldo + self.__limite
-     return saque <= limite_para_saque
+    def valor_disponivel(self, valor_saque):
+        limite_saque = self.__saldo + self.__limite
+        return  valor_saque <= limite_saque
 
-    def saca(self, valor):
-        if self.__saque_disponivel(valor):
-           self.__saldo -= valor
+    def sacar(self, valor):
+        if self.valor_disponivel(valor):
+            self.__saldo -= valor
+            self.mensagem_saque(valor)
         else:
-            print("Saldo indisponível")
+            print("Valor indisponível")
+            self.imprime_data_e_hora()
 
-    def transfere(self, destino, valor):
-        self.saca(valor)
-        destino.deposita(valor)
+    def transfere(self, valor, destino):
+        if self.valor_disponivel(valor):
+            self.sacar(valor)
+            destino.depositar(valor)
+            self.mensagem_deposito()
+        else:
+            print("Valor indisponível para trasnferência.")
+            self.imprime_data_e_hora()
+
+    def mensagem_deposito(self, valor, origem, destino):
+        print("Transferencia realizada")
+        print("Origem", self.__titular)
+        print("Origem", destino.__titular)
+        self.imprime_data_e_hora()
+
+    def mensagem_saque(self, valor):
+        print("Saque realizado.")
+        print("valor: R$",valor)
+        self.imprime_data_e_hora()
+
+    def imprime_data_e_hora(self):
+        data_hora_atual = self.obter_data_atual()
+        data_formatada = data_hora_atual.strftime("%d-%m-%Y %H:%M:%S")
+        print("Data e hora:", data_formatada)
 
     @property
     def saldo(self):
@@ -31,16 +65,20 @@ class Conta:
 
     @property
     def titular(self):
-        return self.__titular
+        return self.__titular.title()
 
     @property
     def limite(self):
         return self.__limite
 
     @limite.setter
-    def limite(self, limite):
-        self.__limite = limite
+    def limite(self, novo_limite):
+        self.__limite += novo_limite
+
+    @staticmethod
+    def codigo_banco():
+        return "001"
 
     @staticmethod
     def codigos_bancos():
-    return {'BB': '001', 'Caixa': '104', 'Bradesco':'237'}
+        return {'BB':"001", 'CAIXA':"104", 'BRADESCO':"273"}
